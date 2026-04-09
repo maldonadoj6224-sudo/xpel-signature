@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XPEL Email Signature Generator</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #f4f4f4;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #111;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.header {
+  background: #111;
+  padding: 22px 36px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-bottom: 4px solid #FFC72C;
+}
+.header img { width: 110px; display: block; }
+.header-bar { width: 3px; height: 46px; background: #FFC72C; flex-shrink: 0; }
+.header-label { color: #FFC72C; font-size: 10px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; }
+.header-title { color: #fff; font-size: 20px; font-weight: bold; margin-top: 5px; }
+
+/* ── WRAPPER ── */
+.wrap { max-width: 760px; margin: 36px auto 60px; padding: 0 16px; }
+
+/* ── CARD ── */
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  overflow: hidden;
+}
+
+/* ── SECTIONS ── */
+.section { padding: 30px 32px; border-bottom: 1px solid #ececec; }
+.section:last-child { border-bottom: none; }
+.section.gray { background: #f9f9f9; }
+
+.step { font-size: 10px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; color: #bbb; margin-bottom: 4px; }
+
+.section-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.section-head h2 { font-size: 18px; font-weight: bold; color: #111; }
+.badge {
+  font-size: 11px; font-weight: bold; padding: 3px 12px;
+  border-radius: 20px; letter-spacing: 0.3px;
+}
+.badge-hs { background: #FF7A59; color: #fff; }
+.badge-ol { background: #0078D4; color: #fff; }
+
+/* ── INSTRUCTION BOX ── */
+.info {
+  background: #fffbf0;
+  border-left: 4px solid #FFC72C;
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.8;
+  margin-bottom: 18px;
+}
+.info.blue { background: #EBF5FB; border-color: #0078D4; }
+
+/* ── HUBSPOT TEXTAREA ── */
+#hsCode {
+  width: 100%;
+  height: 200px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #d4d4d4;
+  background: #1e1e1e;
+  border: 2px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  resize: vertical;
+  outline: none;
+  cursor: text;
+}
+#hsCode:focus { border-color: #FFC72C; }
+
+/* ── BUTTONS ── */
+.btn-copy {
+  margin-top: 12px;
+  background: #FFC72C;
+  color: #111;
+  border: none;
+  padding: 11px 26px;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-copy:hover { background: #e6b000; }
+.btn-copy.done  { background: #27ae60; color: #fff; }
+
+.btn-sel {
+  margin-top: 12px;
+  background: #0078D4;
+  color: #fff;
+  border: none;
+  padding: 11px 26px;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-sel:hover { background: #005fa3; }
+.btn-sel.done  { background: #27ae60; }
+
+.hint { margin-top: 8px; font-size: 12px; color: #aaa; }
+.ok-msg { margin-top: 8px; font-size: 13px; font-weight: bold; color: #27ae60; display: none; }
+
+/* ── OUTLOOK RENDERED BOX ── */
+.outlook-box {
+  display: inline-block;
+  border: 2px dashed #FFC72C;
+  border-radius: 8px;
+  padding: 22px;
+  background: #fff;
+  cursor: copy;
+  max-width: 100%;
+  overflow-x: auto;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.outlook-box:hover {
+  border-color: #e6b000;
+  box-shadow: 0 0 0 4px rgba(255,199,44,0.12);
+}
+
+/* ── HOW-TO LIST ── */
+.howto {
+  margin-top: 20px;
+  background: #EBF5FB;
+  border-left: 4px solid #0078D4;
+  padding: 16px 18px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.6;
+}
+.howto strong { display: block; font-size: 14px; margin-bottom: 8px; color: #111; }
+.howto ol { padding-left: 20px; }
+.howto li { margin-bottom: 5px; }
+
+/* ── FOOTER ── */
+.footer {
+  background: #111;
+  padding: 14px 32px;
+  font-size: 12px;
+  color: #777;
+  line-height: 1.8;
+}
+.footer b { color: #FFC72C; }
+
+/* ── ERROR ── */
+.error-wrap {
+  max-width: 480px; margin: 80px auto;
+  background: #fff; border-radius: 10px;
+  padding: 40px; text-align: center;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+.error-wrap h2 { color: #c0392b; margin-bottom: 12px; }
+.error-wrap p { color: #555; font-size: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="https://vectorseek.com/wp-content/uploads/2023/08/Xpel-Logo-Vector.svg-.png" alt="XPEL">
+  <div class="header-bar"></div>
+  <div>
+    <div class="header-label">Email Signature Generator</div>
+    <div class="header-title">&#10003;&nbsp; Your signature is ready!</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="app"></div>
+</div>
+
+<script>
+// ── Read URL params ───────────────────────────────────────────────────────
+var p     = new URLSearchParams(window.location.search);
+var name  = (p.get('name')  || '').trim();
+var title = (p.get('title') || '').trim();
+var phone = (p.get('phone') || '').trim();
+var app   = document.getElementById('app');
+
+if (!name || !title || !phone) {
+  app.innerHTML = '<div class="error-wrap"><h2>Missing Information</h2><p>This page is generated by the XPEL Email Signature form. Please go back and submit the form to generate your signature.</p></div>';
+} else {
+
+  // Build tel: href
+  var digits  = phone.replace(/\D/g, '');
+  var telHref = 'tel:+1' + (digits.length >= 10 ? digits.slice(-10) : digits);
+
+  // Build the signature HTML string
+  var sig =
+    '<table cellpadding="0" cellspacing="0" border="0" width="520" style="border-collapse:collapse;font-family:Arial, Helvetica, sans-serif;color:#111111;">\n' +
+    '<tr>\n' +
+    '<td width="130" valign="middle" style="padding-right:10px;">\n' +
+    '  <a href="https://www.xpel.com" style="text-decoration:none;">\n' +
+    '    <img src="https://vectorseek.com/wp-content/uploads/2023/08/Xpel-Logo-Vector.svg-.png"\n' +
+    '         alt="XPEL" width="120" style="display:block;border:0;outline:none;height:auto;">\n' +
+    '  </a>\n' +
+    '</td>\n' +
+    '<td width="4" valign="middle" style="background-color:#FFC72C;padding-top:12px;padding-bottom:12px;">&nbsp;</td>\n' +
+    '<td width="12"></td>\n' +
+    '<td valign="middle">\n' +
+    '  <table cellpadding="0" cellspacing="0" border="0" style="font-size:13px;line-height:18px;">\n' +
+    '    <tr>\n' +
+    '      <td style="font-size:15px;"><strong>' + name + '</strong></td>\n' +
+    '    </tr>\n' +
+    '    <tr>\n' +
+    '      <td>' + title + '</td>\n' +
+    '    </tr>\n' +
+    '    <tr>\n' +
+    '      <td style="padding-top:6px;">\n' +
+    '        Direct:\n' +
+    '        <a href="' + telHref + '" style="color:#111111;text-decoration:none;">' + phone + '</a>\n' +
+    '        <span style="color:#111111;"> | </span>\n' +
+    '        Support:\n' +
+    '        <a href="tel:+12106783700" style="color:#111111;text-decoration:none;">210.678.3700</a>\n' +
+    '      </td>\n' +
+    '    </tr>\n' +
+    '    <tr>\n' +
+    '      <td style="padding-top:8px;">Download the <strong>XPEL Mobile App</strong></td>\n' +
+    '    </tr>\n' +
+    '    <tr>\n' +
+    '      <td>\n' +
+    '        <a href="https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fapps.apple.com%2Fus%2Fapp%2Fxpel%2Fid6477790775" style="color:#0B57D0;text-decoration:underline;">APPLE</a>\n' +
+    '        <span style="color:#111111;"> | </span>\n' +
+    '        <a href="https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.xpel.mobileapp" style="color:#0B57D0;text-decoration:underline;">ANDROID</a>\n' +
+    '      </td>\n' +
+    '    </tr>\n' +
+    '  </table>\n' +
+    '</td>\n' +
+    '</tr>\n' +
+    '<tr>\n' +
+    '  <td colspan="4" style="padding-top:14px;font-size:11px;line-height:15px;color:#555555;">\n' +
+    '    <strong>Notice from XPEL Inc:</strong>\n' +
+    '    This message may contain information that is proprietary, confidential, and not to be disclosed.\n' +
+    '    It is intended for use only by the person to whom it is addressed. If you have received this in error,\n' +
+    '    please do not forward or use this information and notify the sender immediately.\n' +
+    '    Neither this information block nor the typed name of the sender constitutes an electronic signature\n' +
+    '    unless expressly stated otherwise.\n' +
+    '  </td>\n' +
+    '</tr>\n' +
+    '</table>';
+
+  // Render the page
+  app.innerHTML =
+    '<div class="card">' +
+
+    // ── STEP 1: HUBSPOT ──────────────────────────────
+    '<div class="section">' +
+      '<div class="step">Step 1</div>' +
+      '<div class="section-head">' +
+        '<h2>HubSpot Signature</h2>' +
+        '<span class="badge badge-hs">HubSpot</span>' +
+      '</div>' +
+      '<div class="info">' +
+        '1. Click <strong>Copy HTML</strong> below.<br>' +
+        '2. In HubSpot: <strong>Settings &rarr; General &rarr; Email Signature</strong><br>' +
+        '3. Click the <strong>&lt;/&gt; Source</strong> button in the editor toolbar.<br>' +
+        '4. Delete all existing content, then paste.' +
+      '</div>' +
+      '<textarea id="hsCode" readonly onclick="this.select()"></textarea><br>' +
+      '<button class="btn-copy" id="copyBtn" onclick="copyHS()">&#128203;&nbsp; Copy HTML</button>' +
+      '<div class="ok-msg" id="copyMsg">&#10003; Copied to clipboard!</div>' +
+      '<div class="hint">You can also click inside the box &rarr; Ctrl+A &rarr; Ctrl+C to copy manually.</div>' +
+    '</div>' +
+
+    // ── STEP 2: OUTLOOK ──────────────────────────────
+    '<div class="section gray">' +
+      '<div class="step">Step 2</div>' +
+      '<div class="section-head">' +
+        '<h2>Outlook Signature</h2>' +
+        '<span class="badge badge-ol">Outlook</span>' +
+      '</div>' +
+      '<div class="info blue">' +
+        '1. Click <strong>Select for Outlook</strong> below.<br>' +
+        '2. Press <strong>Ctrl+C</strong> (Windows) or <strong>Cmd+C</strong> (Mac).<br>' +
+        '3. Paste into your Outlook signature editor.' +
+      '</div>' +
+      '<div class="outlook-box" id="olBox"></div><br>' +
+      '<button class="btn-sel" id="selBtn" onclick="selectOL()">&#128438;&nbsp; Select for Outlook</button>' +
+      '<div class="ok-msg" id="selMsg">&#10003; Selected! Now press Ctrl+C / Cmd+C to copy.</div>' +
+      '<div class="howto">' +
+        '<strong>How to add to Outlook:</strong>' +
+        '<ol>' +
+          '<li>Click <strong>Select for Outlook</strong> above, then <strong>Ctrl+C / Cmd+C</strong></li>' +
+          '<li>Open Outlook &rarr; <strong>File &rarr; Options &rarr; Mail</strong></li>' +
+          '<li>Click <strong>Signatures&hellip;</strong></li>' +
+          '<li>Click <strong>New</strong>, name it <em>XPEL</em>, click OK</li>' +
+          '<li>Click inside the large signature text box</li>' +
+          '<li>Press <strong>Ctrl+V / Cmd+V</strong> to paste</li>' +
+          '<li>Set as default for New Messages and/or Replies</li>' +
+          '<li>Click <strong>OK</strong> to save</li>' +
+        '</ol>' +
+      '</div>' +
+    '</div>' +
+
+    // ── FOOTER ───────────────────────────────────────
+    '<div class="footer">' +
+      '<b>HubSpot:</b> Always click &lt;/&gt; Source BEFORE pasting &mdash; never paste into the visual editor.&nbsp;&nbsp;' +
+      '<b>Outlook:</b> Copy from the yellow dashed box only.' +
+    '</div>' +
+
+    '</div>'; // end .card
+
+  // Populate textarea & Outlook box
+  document.getElementById('hsCode').value = sig;
+  document.getElementById('olBox').innerHTML = sig;
+
+  // Copy HTML button
+  window.copyHS = function() {
+    var ta = document.getElementById('hsCode');
+    ta.select();
+    ta.setSelectionRange(0, 99999);
+    var btn = document.getElementById('copyBtn');
+    var msg = document.getElementById('copyMsg');
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(ta.value).then(function() {
+        btn.classList.add('done'); btn.innerHTML = '&#10003;&nbsp; Copied!'; msg.style.display = 'block';
+        setTimeout(function(){ btn.classList.remove('done'); btn.innerHTML = '&#128203;&nbsp; Copy HTML'; msg.style.display = 'none'; }, 3000);
+      }).catch(function() { fallbackCopy(ta); });
+    } else { fallbackCopy(ta); }
+  };
+
+  function fallbackCopy(ta) {
+    try {
+      document.execCommand('copy');
+      var btn = document.getElementById('copyBtn');
+      var msg = document.getElementById('copyMsg');
+      btn.classList.add('done'); btn.innerHTML = '&#10003;&nbsp; Copied!'; msg.style.display = 'block';
+      setTimeout(function(){ btn.classList.remove('done'); btn.innerHTML = '&#128203;&nbsp; Copy HTML'; msg.style.display = 'none'; }, 3000);
+    } catch(e) {}
+  }
+
+  // Select for Outlook button
+  window.selectOL = function() {
+    var el  = document.getElementById('olBox');
+    var rng = document.createRange();
+    rng.selectNodeContents(el);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    var btn = document.getElementById('selBtn');
+    var msg = document.getElementById('selMsg');
+    btn.classList.add('done'); btn.innerHTML = '&#10003;&nbsp; Selected!'; msg.style.display = 'block';
+    setTimeout(function(){ btn.classList.remove('done'); btn.innerHTML = '&#128438;&nbsp; Select for Outlook'; msg.style.display = 'none'; }, 5000);
+  };
+
+} // end if valid
+</script>
+</body>
+</html>
